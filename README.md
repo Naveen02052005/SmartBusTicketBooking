@@ -32,12 +32,6 @@ Smart Bus Ticket Booking System is a web-based application. The system enables p
 ### Database
 - MySQL
 
-## Future Enhancements
-
-- Online Payment Integration
-- Mobile Application Support
-- Real-Time Bus Tracking
-
 ## Project Structure
 
 ```text
@@ -56,6 +50,29 @@ SmartBusTicketBooking/
 ├── package.json
 └── package-lock.json 
 ```
+## Screenshots
+
+### Home Page 
+
+![Home Page](screenshots/Home.png) 
+
+### Passenger Portal 
+
+![Passenger Portal](screenshots/Passenger_Portal.png)
+
+### Conductor Portal
+![Conductor Portal](screenshots/Conductor_Portal.png) 
+
+### QR Ticket 
+![QR Ticket](screenshots/Ticket.png)
+
+## Future Enhancements
+
+- Online Payment Integration
+- Mobile Application Support
+- Real-Time Bus Tracking
+
+
 ## Author
 
 Naveen Merugu
