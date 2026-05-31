@@ -54,15 +54,17 @@ SmartBusTicketBooking/
 
 ### Home Page 
 
-![Home Page](screenshots/home.png) 
+![Home Page](screenshots/Home.png) 
 
 ### Passenger Portal 
 
-![Passenger Portal](screenshots/passenger-portal.png)
+![Passenger Portal](screenshots/Passenger_Portal.png)
 
-### Conductor Portal ![Conductor Portal](screenshots/conductor-portal.png) 
+### Conductor Portal
+![Conductor Portal](screenshots/Conductor_Portal.png) 
 
-### QR Ticket ![QR Ticket](screenshots/qr-ticket.png
+### QR Ticket 
+![QR Ticket](screenshots/Ticket.png)
 
 ## Future Enhancements
 
