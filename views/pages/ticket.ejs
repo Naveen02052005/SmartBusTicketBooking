@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Ticket</title>
+        <link rel="stylesheet" href="/css/style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+        <div class="ticket-form">
+            <div class="ticket-left">
+                <div class="header">
+                    <span class="bus-icon">🚌</span>
+                    <h2>Smart Bus Ticket</h2>
+                </div>
+                <hr>
+                <div class="section-title">JOURNEY DETAILS</div><br>
+                <div class="ticket-details">
+                    <P><i class="fa-solid fa-location-dot" id="from"></i> &nbsp; From: <b><%= source %></b> -><i class="fa-solid fa-bus-simple"></i>-<i class="fa-solid fa-location-dot" id="to"></i>&nbsp;To:<b><%= destination %></b></P>
+                <hr>
+                 <p>Booking Time:<b><%= bookingDateIST%></b></p><hr>
+                 <p>Passenger:<b><%= fullName %></b></p><hr>
+                 <p>Adults: <b><%= adults %></b></p><hr>
+                 <p>Children: <b><%= children %></b></p><hr>
+                </div>
+                <div class="footer">
+                    <div class="website">www.smartbusbooking.com</div>
+                    <p><strong>Transaction ID:</strong><%= paymentId %></p>
+                </div>
+            </div> 
+            <div class="ticket-right">
+                <div class="qrcode" id="qrcode">
+                    <img src="<%= qrImage %>" alt="QR code" class="qr-img">
+                </div>
+                <p class="ticket-code"><strong><%= ticketNumber %></strong></p>
+                <p class="scan-text">SCAN FOR BOARDING</p>
+                <p><strong>Boarding Point</strong>Main Bus Station</p>
+                <p><strong>Valid Until:</strong><%= validUntilIST %></p>
+            </div>
+
+            
+        </div>
+        </div>
+
+        <div class="ticket-actions">
+
+            <a href="/interface/bookingTicket/download/<%= ticketNumber %>">
+                <button class="download-btn">
+                    <i class="fa-solid fa-download"></i> Download Ticket
+                </button>
+            </a>
+
+            <button class="goto">
+                <a href="/interface">Go to Home</a>
+            </button>
+
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <script src="practice.js"></script>
+    </body>
+</html>

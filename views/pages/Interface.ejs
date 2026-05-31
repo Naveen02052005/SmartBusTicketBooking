@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bus Ticket Booking</title>
+    <link rel="stylesheet" href="/css/Interface.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navBar1">
+        <i class="fa-solid fa-bars menu"></i>
+        <h3>Tickets</h3>
+        <div style="display: flex; align-items: center;">
+            <div class="login">
+                <% if (isLoggedIn) { %>
+                    <a class="login-det" href="/logout"><p>Logout</p></a>
+                    <a class="profile"><i class="fa-solid fa-user"></i></a>
+                <% } else { %>
+                    <a class="login-det" href="/login"><p>Login</p></a>
+                    <a class="registration-det" href="/registration"><p>Registration</p></a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sideBar">
+        <i class="fa-solid fa-xmark" id="cross"></i>
+        <ul>
+            <li><i class="fa-solid fa-ticket"></i><a href="#">Tickets</a></li>
+            <li><i class="fa-solid fa-store"></i><a href="#">Store</a></li>
+            <li><i class="fa-solid fa-circle-info"></i><a href="#">More</a></li>
+            <li><i class="fa-solid fa-gear"></i><a href="#">Settings</a></li>
+        </ul>
+    </div>
+
+    <nav class="navBar2">
+        <a href="/home"><i class="fa-solid fa-home"></i> Home</a>
+        <a href="/interface/history">History</a>
+        <a href="/conductor/interface"><i class="fa-solid fa-user-tie"></i> Conductor</a>
+    </nav>
+
+    <div class="content">
+        
+        <div class="circle">
+            <i class="fa-solid fa-ticket"></i>
+        </div>
+        <h4>You have no tickets</h4>
+        <p class="p1">Click <b>Buy Tickets</b> button to purchase tickets and<br> they will appear here.</p>
+        <a href="/interface/bookingTicket">
+            <button>BUY TICKETS</button>
+        </a>
+        <p class="p3" href="/home"><b>Go TO Home</b></p>
+    </div>
+
+    <script src="Interface.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Registration</title>
+        <link rel="stylesheet" href="/css/registration.css">
+    </head>
+    <body>
+        <h1 class="heading">Registration form</h1>
+        <form id="register" onsubmit="return validateForm1()" onreset="resetErrors() " method="post" action="/registration" novalidate>
+                <p>
+                    <label for="fullName" class="label">FullName:</label>
+                    <input type="text" id="name" name="fullName" placeholder="Enter Full Name">
+                    <span id="name-error" class="error-message"></span>
+
+                    <% if(nameError){ %>
+                    <div class="error"> <%= nameError %></div>
+                    <% } %>
+                </p>
+                <p>
+                    <label for="email" class="label">Email</label>
+                    <input type="email" id="email" name="email" placeholder="abc@gmail.com">
+                    <span id="email-error" class="error-message"></span>
+                    <% if(emailError){ %>
+                    <div class="error"> <%= emailError %></div>
+                    <% } %>
+                </p>
+                <p>
+                    <label for="phone" class="label">Phone</label>
+                    <input type="text" id="phone" name="phone" placeholder="+91">
+                    <span id="phone-error" class="error-message"></span>
+                    <% if(phoneError){ %>
+                    <div class="error"> <%=phoneError %></div>
+                    <% } %>
+                </p>
+                <p>
+                    <label for="password" class="label">Password</label>
+                    <div class="input-group">
+                        <input type="password" id="password" name="password" placeholder="******">
+                        <i class="fa-solid fa-eye" id="togglePassword"></i>
+                    </div>
+                    <span id="password-error" class="error-message"></span>
+                    <% if(passwordError){ %>
+                    <div class="error"> <%= passwordError %></div>
+                    <% } %>
+                </p>
+                <p>
+                    <label for="Confirm-Password" class="label">Conform Password:</label>
+                    <div class="input-group">
+                        <input type="password" id="ConfirmPassword" name="ConfirmPassword" placeholder="******">
+                        <i class="fa-solid fa-eye" id="toggleConfirmPassword"></i>
+                    </div>
+                    <span id="confirm-error" class="error-message"></span>
+                    <% if(confirmError){ %>
+                    <div class="error"> <%= confirmError %></div>
+                    <% } %>
+                </p>
+                
+                <p>
+                    <input type="submit" value="Register" name="Submit">
+                    <input type="reset" value="Reset" name="Reset">
+                </p>
+        </form>
+    
+        <script>
+            setTimeout(() => {
+            const errorEls = document.querySelectorAll('.error');
+            errorEls.forEach(err => {
+            err.style.display = 'none';
+            });
+            }, 5000);
+        </script>
+        <script src="/js/registration.js"></script>
+    </body>
+</html>

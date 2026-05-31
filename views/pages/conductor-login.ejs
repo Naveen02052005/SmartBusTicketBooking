@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conductor Login - Smart Bus Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-2xl">
+        <div>
+            <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-indigo-100">
+                <i class="fas fa-user-tie text-indigo-600 text-xl"></i>
+            </div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Conductor Portal
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Sign in to manage your journey
+            </p>
+        </div>
+        
+        <% if (error) { %>
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <%= error %>
+            </div>
+        <% } %>
+
+        <form class="mt-8 space-y-6" action="/conductor/login" method="POST">
+            <div class="space-y-4">
+                <div>
+                    <label for="employeeId" class="block text-sm font-medium text-gray-700">
+                        Employee ID
+                    </label>
+                    <div class="mt-1 relative">
+                        <input 
+                            id="employeeId" 
+                            name="employeeId" 
+                            type="text" 
+                            required 
+                            class="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="Enter your employee ID"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-id-badge text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">
+                        Password
+                    </label>
+                    <div class="mt-1 relative">
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            required 
+                            class="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="Enter your password"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="busNumber" class="block text-sm font-medium text-gray-700">
+                        Bus Number
+                    </label>
+                    <div class="mt-1 relative">
+                        <input 
+                            id="busNumber" 
+                            name="busNumber" 
+                            type="text" 
+                            required 
+                            class="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="e.g., KA-01-AB-1234"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-bus text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="route" class="block text-sm font-medium text-gray-700">
+                        Route
+                    </label>
+                    <div class="mt-1 relative">
+                        <select 
+                            id="route" 
+                            name="route" 
+                            required 
+                            class="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                        >
+                            <option value="">Select your route</option>
+                            <option value="Godavarikhani → Mancherial">Godavarikhani → Mancherial</option>
+                            <option value="Godavarikhani → Peddapalli">Godavarikhani → Peddapalli</option>
+                            <option value="Godavarikhani → Karimnagar">Godavarikhani → Karimnagar</option>
+                            <option value="Peddapalli → Mancherial">Peddapalli → Mancherial</option>
+                            <option value="Karimnagar → Warangal">Karimnagar → Warangal</option>
+                            <option value="Warangal → Hyderabad">Warangal → Hyderabad</option>
+                            <option value="Hyderabad → Godavarikhani">Hyderabad → Godavarikhani</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fas fa-route text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button 
+                    type="submit" 
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
+                >
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-sign-in-alt group-hover:text-indigo-400"></i>
+                    </span>
+                    Start Journey
+                </button>
+            </div>
+
+            <div class="text-center">
+                <a href="/conductor/interface" class="text-indigo-600 hover:text-indigo-500 text-sm">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    Back to Main Interface
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

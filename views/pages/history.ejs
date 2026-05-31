@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Ticket</title>
+        <link rel="stylesheet" href="/css/history.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <%- include("../includes/flash.ejs") %>
+        <h1 class="history-title">My Ticket History</h1>
+                <div class="ticket-history-container">
+                    <% if(tickets.length === 0) { %>
+                        <p>No tickets booked yet</p>
+                    <% } %>
+                    <% for(const ticket of tickets){ %>
+                        <div class="ticket-form">
+                            <div class="ticket-left">
+                                <div class="header">
+                                    <span class="bus-icon">🚌</span>
+                                    <h2>Smart Bus Ticket</h2>
+                                </div>
+                                <hr>
+                                <div class="section-title">JOURNEY DETAILS</div><br>
+                                <div class="ticket-details">
+                                    <P><i class="fa-solid fa-location-dot" id="from"></i> &nbsp; From: <b><%= ticket.source %></b> -<i class="fa-solid fa-bus-simple"></i>-<i class="fa-solid fa-location-dot" id="to"></i>&nbsp;To:<b><%= ticket.destination %></b></P>
+                                <hr>
+                                <p>Booking Time:<b><%= ticket.bookingDateIST%></b></p><hr>
+                                <p>Passenger:<b><%= ticket.fullName %></b></p><hr>
+                                <p>Adults: <b><%= ticket.adults %></b></p><hr>
+                                <p>Children: <b><%= ticket.children %></b></p><hr>
+                                </div>
+                                <div class="footer">
+                                    <div class="website">www.smartbusbooking.com</div>
+                                    <p>Payment: ******5678 | Booking ID: BK987654</p>
+                                </div>
+                            </div> 
+                            <div class="ticket-right">
+                                <div class="qrcode" id="qrcode">
+                                    <img src="<%= ticket.qrImage %>" alt="QR code" class="qr-img">
+                                </div>
+                                <p class="ticket-code"><strong><%= ticket.ticketNumber %></strong></p>
+                                <p class="scan-text">SCAN FOR BOARDING</p>
+                                <p><strong>Boarding Point</strong>Main Bus Station</p>
+                                <% if(!ticket.isExpired){ %>
+                                    <p><strong>Valid Until:</strong><%= ticket.expiryTime %></p>
+                                <% } else { %>
+                                    <p style="color: red;"><strong>Valid Until:</strong>Expired</p>
+                                <% } %>
+                        </div>
+                    </div>
+                    
+                        <div class="ticket-actions">
+
+                                <a href="/interface/bookingTicket/download/<%= ticket.ticketNumber %>">
+                                    <button class="download-btn">
+                                        <i class="fa-solid fa-download"></i> Download Ticket
+                                    </button>
+                                </a>
+                            </div>
+                    <% } %>
+                
+                </div>  
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

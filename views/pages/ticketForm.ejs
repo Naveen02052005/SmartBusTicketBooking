@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Booking Tickets</title>
+        <link rel="stylesheet" href="/css/style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        
+    </head>
+    <body>
+        <div class="ticket-booking">
+            <%- include("../includes/flash.ejs") %>
+            <h4 style="margin-left: 11px;">Book Your Tickets</h4>
+            <form  novalidate class="needs-validation" action="/interface/bookingTicket" method="POST">
+                    <div class="ms-3">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" name="fullName" required>
+                        <div class="invalid-feedback">Please enter your full name</div>
+                    </div>
+                    <div class="ms-3">
+                        <label for="aadhar" class="form-label">Aadhar Number</label>
+                        <input type="text" class="form-control" name="aadhar" min="12" required>
+                        <div class="invalid-feedback">Please enter your aadhar number</div>
+                    </div>
+                <div class="row g-3 ms-2 mt-1 ">
+                    <div class="col-md-6">
+                        <label for="src" class="form-label">Source</label>
+                        <select name="source" class="form-select" required>
+                            <option value="">Please select your source</option>
+                            <option value="Godavarikhani">Godavarikhani</option>
+                            <option value="Peddapalli">Peddapalli</option>
+                            <option value="Karimnagar">Karimnagar</option>
+                            <option value="Mancherial">Mancherial</option>
+                            <option value="Warangal">Warangal</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                        </select>
+                        <div class="invalid-feedback">Please select your source</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="dest" class="form-label">Destination</label>
+                        <select name="destination" class="form-select" required>
+                            <option value="">Please select your destination</option>
+                            <option value="Godavarikhani">Godavarikhani</option>
+                            <option value="Peddapalli">Peddapalli</option>
+                            <option value="Karimnagar">Karimnagar</option>
+                            <option value="Mancherial">Mancherial</option>
+                            <option value="Warangal">Warangal</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                        </select>
+                        <div class="invalid-feedback">Please select your destination</div>
+                    </div>
+                </div><br>
+                <div class="ms-3">
+                        <label for="busType" class="form-label">Type of Bus:</label>
+                        <select name="busType" class="form-select" required>
+                            <option value="">Select your bus type</option>
+                            <option value="ordinary">Ordinary</option>
+                            <option value="express">Express</option>
+                        </select>
+                        <div class="invalid-feedback">Please select your bus type</div>
+                </div><br>
+                <div class="ms-3">
+                        <label for="adults" class="form-label">Adults</label>
+                        <input type="number" class="form-control" name="adults" min="1" id="adults" required>
+                        <div class="invalid-feedback">Please enter number of adult Passengers</div>
+                </div><br>
+                <div class="ms-3">
+                        <label for="children" class="form-label">Children</label>
+                        <input type="number" class="form-control" name="children" min="0" id="children">
+                </div><br>
+                <div class="ms-3">
+                      <label class="form-label">Total Tickets</label>
+                      <input type="number" class="form-control" id="totalTickets" readonly>
+                <!-- </div><br>
+                <div class="ms-3">
+                    <label class="form-label">Adult Ticket Fare</label>
+                    <input type="text" class="form-control" id="adultFare" readonly>
+                </div><br>
+
+                <div class="ms-3">
+                    <label class="form-label">Child Ticket Fare</label>
+                    <input type="text" class="form-control" id="childFare" readonly>
+                </div><br>
+
+                <div class="ms-3">
+                    <label class="form-label fw-bold">Total Fare</label>
+                    <input type="text" class="form-control fw-bold bg-light" id="totalFare" readonly>
+                </div><br> --><br>
+                <div class="alert alert-warning ms-3 ">
+                    <strong>Note:</strong> This ticket is valid for <b>24 hours</b> from the time of booking.
+                </div> 
+                    <button type="submit" class="btn btn-primary w-100 ms-3">
+                    Proceed to Payment
+                </button>
+            </form>
+        </div>
+        <script src="/js/script.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

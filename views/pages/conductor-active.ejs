@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conductor Dashboard - Active Journey</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-completed {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .status-cancelled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .ticket-verified {
+            background-color: #f0fdf4;
+        }
+        .ticket-expired {
+            background-color: #fef2f2;
+        }
+        .summary-card {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        .summary-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .qr-scanner-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        .qr-scanner-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            max-width: 500px;
+            width: 90%;
+        }
+        #qr-reader {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Active Journey – Passenger Tickets</h1>
+                    <div class="mt-2">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-lg font-medium"><%= journey.busNumber %> • <%= journey.route %></span>
+                            <span class="status-badge status-active">LIVE</span>
+                        </div>
+                        <div class="text-sm text-gray-500 mt-1">
+                            <span>Today, <%= journey.startTime %> - <%= journey.endTime %> • Conductor: <%= conductor.name %></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="startQRScanner()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 mr-2">
+                        <i class="fas fa-qrcode mr-2"></i>
+                        Scan QR Code
+                    </button>
+                    
+                    <!-- Test Button -->
+                    <button onclick="testQRScanner()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
+                        <i class="fas fa-vial-slash mr-2"></i>
+                        Test Scanner
+                    </button>
+                    <button onclick="refreshTickets()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
+                        <i class="fas fa-sync-alt mr-2"></i> Refresh
+                    </button>
+                    <a href="/conductor/logout" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Summary Cards -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Active Tickets -->
+            <div class="summary-card bg-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Tickets</p>
+                        <p class="text-3xl font-bold text-gray-900" id="totalTickets">0</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-ticket-alt text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-600 font-medium">
+                    <i class="fas fa-route"></i> <%= journey.route %>
+                </div>
+            </div>
+
+            <!-- Verified Tickets -->
+            <div class="summary-card bg-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Boarded</p>
+                        <p class="text-3xl font-bold text-green-600" id="boardedTickets">0</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-green-600 font-medium" id="boardingPercentage">
+                    <i class="fas fa-percentage"></i> 0% boarded
+                </div>
+            </div>
+
+            <!-- Pending Boarding -->
+            <div class="summary-card bg-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Pending Boarding</p>
+                        <p class="text-3xl font-bold text-yellow-600" id="pendingTickets">0</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-user-clock text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-yellow-600 font-medium">
+                    <i class="fas fa-exclamation-circle"></i> Waiting to board
+                </div>
+            </div>
+
+            <!-- Total Revenue -->
+            <div class="summary-card bg-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Revenue</p>
+                        <p class="text-3xl font-bold text-purple-600" id="totalRevenue">₹0</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                        <i class="fas fa-rupee-sign text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-purple-600 font-medium">
+                    <i class="fas fa-chart-line"></i> Journey earnings
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+            <!-- Filters and Search -->
+            <div class="bg-white p-4 rounded-lg shadow mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                    <div class="flex space-x-2 overflow-x-auto pb-2 md:pb-0">
+                        <button onclick="filterTickets('all')" class="filter-btn px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">All Tickets</button>
+                        <button onclick="filterTickets('active')" class="filter-btn px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">Active</button>
+                        <button onclick="filterTickets('boarded')" class="filter-btn px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">Boarded</button>
+                        <button onclick="filterTickets('pending')" class="filter-btn px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">Pending</button>
+                        <button onclick="filterTickets('expired')" class="filter-btn px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">Expired</button>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search by Ticket ID or Name" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tickets Table -->
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket ID</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passenger</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boarding</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seats</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fare</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketsTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Ticket rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div id="qrScannerModal" class="qr-scanner-modal">
+        <div class="qr-scanner-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Scan QR Code</h3>
+                <button onclick="stopQRScanner()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="qr-reader"></div>
+            
+            <!-- Manual Ticket Input Fallback -->
+            <div class="mt-4 p-4 bg-gray-100 rounded-lg">
+                <h4 class="text-sm font-medium text-gray-700 mb-2">Or Enter Ticket Number Manually:</h4>
+                <div class="flex gap-2">
+                    <input type="text" id="manualTicketInput" placeholder="Enter ticket number (e.g., TG20240403456)" 
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="processManualTicket()" 
+                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Verify Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Notification -->
+    <div id="notification" class="fixed top-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 hidden z-50">
+        <div class="flex items-center">
+            <div id="notificationIcon" class="flex-shrink-0"></div>
+            <div class="ml-3">
+                <p id="notificationMessage" class="text-sm font-medium text-gray-900"></p>
+            </div>
+            <button onclick="hideNotification()" class="ml-auto text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let tickets = [];
+        let currentFilter = 'all';
+        let html5QrCode = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTickets();
+            loadStats();
+            
+            // Set up search functionality
+            document.getElementById('searchInput').addEventListener('input', searchTickets);
+            
+            // Auto-refresh every 30 seconds
+            setInterval(() => {
+                loadTickets();
+                loadStats();
+            }, 30000);
+        });
+
+        // Load tickets from server
+        async function loadTickets() {
+            try {
+                const response = await fetch('/conductor/active');
+                const html = await response.text();
+                // Extract tickets data from the rendered page (in production, use API endpoint)
+                // For now, we'll use the tickets passed from the server
+                tickets = JSON.parse('<%- JSON.stringify(tickets) %>') || [];
+                renderTickets();
+            } catch (error) {
+                console.error('Error loading tickets:', error);
+            }
+        }
+
+        // Load statistics from server
+        async function loadStats() {
+            try {
+                const response = await fetch('/conductor/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('totalTickets').textContent = data.stats.totalTickets;
+                    document.getElementById('boardedTickets').textContent = data.stats.boardedTickets;
+                    document.getElementById('pendingTickets').textContent = data.stats.pendingTickets;
+                    document.getElementById('totalRevenue').textContent = `₹${data.stats.totalRevenue}`;
+                    document.getElementById('boardingPercentage').innerHTML = 
+                        `<i class="fas fa-percentage"></i> ${data.stats.boardingPercentage}% boarded`;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Render tickets in the table
+        function renderTickets() {
+            const tbody = document.getElementById('ticketsTable');
+            tbody.innerHTML = '';
+
+            let filteredTickets = filterTicketsByStatus(currentFilter);
+            filteredTickets = searchTicketsByText(filteredTickets);
+
+            filteredTickets.forEach(ticket => {
+                const row = document.createElement('tr');
+                row.className = `hover:bg-gray-50 ${ticket.boardedStatus === 'boarded' ? 'ticket-verified' : ''} ${ticket.isExpired ? 'ticket-expired' : ''}`;
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ${ticket.ticketNumber}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${ticket.fullName}</div>
+                        <div class="text-xs text-gray-500">${ticket.bookingDateIST}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${ticket.source}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${ticket.destination}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                            ${ticket.totalTickets} ${ticket.totalTickets > 1 ? 'Seats' : 'Seat'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ₹${ticket.totalFare}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(ticket)}">
+                            ${getTicketStatus(ticket)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        ${ticket.boardedStatus !== 'boarded' && !ticket.isExpired ? `
+                            <button onclick="manualBoardTicket('${ticket.ticketNumber}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-check-circle"></i> Board
+                            </button>
+                        ` : ''}
+                        <button class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Filter tickets by status
+        function filterTicketsByStatus(filter) {
+            switch(filter) {
+                case 'boarded':
+                    return tickets.filter(t => t.boardedStatus === 'boarded');
+                case 'pending':
+                    return tickets.filter(t => t.boardedStatus !== 'boarded' && !t.isExpired);
+                case 'expired':
+                    return tickets.filter(t => t.isExpired);
+                case 'active':
+                    return tickets.filter(t => !t.isExpired);
+                default:
+                    return tickets;
+            }
+        }
+
+        // Search tickets by text
+        function searchTicketsByText(ticketsToSearch) {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (!searchTerm) return ticketsToSearch;
+            
+            return ticketsToSearch.filter(ticket => 
+                ticket.ticketNumber.toLowerCase().includes(searchTerm) ||
+                ticket.fullName.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // Filter tickets (called by filter buttons)
+        function filterTickets(filter) {
+            currentFilter = filter;
+            
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-white', 'border', 'border-gray-300');
+            });
+            
+            event.target.classList.remove('bg-white', 'border', 'border-gray-300');
+            event.target.classList.add('bg-blue-600', 'text-white');
+            
+            renderTickets();
+        }
+
+        // Search tickets (called by search input)
+        function searchTickets() {
+            renderTickets();
+        }
+
+        // Get status class for ticket
+        function getStatusClass(ticket) {
+            if (ticket.isExpired) return 'bg-red-100 text-red-800';
+            if (ticket.boardedStatus === 'boarded') return 'bg-green-100 text-green-800';
+            return 'bg-yellow-100 text-yellow-800';
+        }
+
+        // Get ticket status text
+        function getTicketStatus(ticket) {
+            if (ticket.isExpired) return 'Expired';
+            if (ticket.boardedStatus === 'boarded') return 'Boarded';
+            return 'Pending';
+        }
+
+        // Start QR Scanner
+        function startQRScanner() {
+            document.getElementById('qrScannerModal').style.display = 'block';
+            
+            html5QrCode = new Html5Qrcode("qr-reader");
+            
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length) {
+                    const cameraId = devices[0].id;
+                    
+                    html5QrCode.start(
+                        cameraId,
+                        {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 }
+                        },
+                        (decodedText, decodedResult) => {
+                            // QR Code scanned successfully
+                            stopQRScanner();
+                            processScannedTicket(decodedText);
+                        },
+                        (errorMessage) => {
+                            // Ignore scan errors
+                        }
+                    ).catch((err) => {
+                        console.error(`Unable to start scanning: ${err}`);
+                        showNotification('Unable to access camera', 'error');
+                        stopQRScanner();
+                    });
+                }
+            }).catch(err => {
+                console.error(`Error getting cameras: ${err}`);
+                showNotification('No camera found', 'error');
+                stopQRScanner();
+            });
+        }
+
+        // Stop QR Scanner
+        function stopQRScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                }).catch((err) => {
+                    console.error(`Failed to stop scanning: ${err}`);
+                });
+            }
+            document.getElementById('qrScannerModal').style.display = 'none';
+        }
+
+        // Process scanned ticket
+        async function processScannedTicket(qrData) {
+            try {
+                console.log('Raw QR Data received:', qrData);
+                console.log('QR Data type:', typeof qrData);
+                console.log('QR Data length:', qrData ? qrData.length : 'null');
+                
+                if (!qrData || qrData.trim() === '') {
+                    showNotification('No QR data received. Please try again.', 'error');
+                    return;
+                }
+                
+                // Extract ticket number from QR data
+                const ticketNumber = extractTicketNumber(qrData);
+                
+                console.log('Extracted Ticket Number:', ticketNumber);
+                
+                if (!ticketNumber) {
+                    showNotification('Invalid QR code format. Expected format: "Ticket No: TG..."', 'error');
+                    stopQRScanner();
+                    return;
+                }
+
+                console.log('Sending ticket number to server:', ticketNumber);
+
+                // Send ticket number to server for verification
+                const response = await fetch('/conductor/scan-ticket', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ticketNumber }),
+                });
+
+                console.log('Server Response Status:', response.status);
+
+                let result;
+
+                try {
+                    result = await response.json();
+                } catch (e) {
+                    showNotification("Invalid server response", "error");
+                    return;
+                }
+
+                console.log('Server Response:', result);
+
+                if (result.success) {
+                    showNotification(
+                        `✅ ${result.message}\nName: ${result.ticket?.fullName || ""}`,
+                        'success'
+                    );
+                    setTimeout(() => {
+                        window.location.reload();
+                    },1000)
+                } else {
+                    if (result.ticket) {
+                        showNotification(
+                            `❌ ${result.message}\nName: ${result.ticket.fullName}`,
+                            'error'
+                        );
+                    } else {
+                        showNotification(`❌ ${result.message}`, 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Error processing scanned ticket:', error);
+                showNotification(`Error processing ticket: ${error.message}`, 'error');
+                stopQRScanner();
+            }
+        }
+
+        // Extract ticket number from QR data
+        function extractTicketNumber(qrData) {
+            console.log("QR RAW DATA:", qrData);
+
+            if (!qrData) return null;
+
+            // Case 1: Full QR format
+            const lines = qrData.split('\n');
+
+            for (let line of lines) {
+                line = line.trim();
+
+                if (line.toLowerCase().includes('ticket no')) {
+                    const parts = line.split(':');
+                    if (parts.length >= 2) {
+                        return parts[1].trim();
+                    }
+                }
+            }
+
+            // Case 2: Only ticket number (like TG12345)
+            if (qrData.startsWith('TG')) {
+                return qrData.trim();
+            }
+
+            console.log("❌ Could not extract ticket number");
+            return null;
+        }
+
+        // Manual board ticket
+        async function manualBoardTicket(ticketNumber) {
+            if (!confirm(`Board passenger with ticket ${ticketNumber}?`)) {
+                return;
+            }
+
+            try {
+                console.log('Manual boarding ticket:', ticketNumber);
+
+                const response = await fetch('/conductor/scan-ticket', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ticketNumber }),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification(
+                        `✅ ${result.message}\nName: ${result.ticket?.fullName || ""}`,
+                        'success'
+                    );
+                    setTimeout(() => {
+                        window.location.reload();
+                    },1000)
+                } else {
+                    if (result.ticket) {
+                        showNotification(
+                            `❌ ${result.message}\nName: ${result.ticket.fullName}`,
+                            'error'
+                        );
+                    } else {
+                        showNotification(`❌ ${result.message}`, 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Error in manual boarding:', error);
+                showNotification('Error boarding ticket manually', 'error');
+            }
+        }
+
+        // Test QR Scanner function
+        function testQRScanner() {
+            console.log('Testing QR Scanner...');
+            
+            // Test with a known ticket number
+            const testTicketNumber = 'TG20240403456';
+            
+            console.log('Testing with ticket number:', testTicketNumber);
+            
+            // Simulate QR scan by calling processScannedTicket directly
+            processScannedTicket(`Ticket No: ${testTicketNumber}
+From: Godavarikhani
+To: Peddapalli
+Bus: ordinary
+Adults: 2
+Children: 1
+Fare: ₹150`);
+        }
+
+        // Process manual ticket input
+        async function processManualTicket() {
+            const ticketNumber = document.getElementById('manualTicketInput').value.trim();
+            
+            if (!ticketNumber) {
+                showNotification('Please enter a ticket number', 'error');
+                return;
+            }
+
+            await manualBoardTicket(ticketNumber);
+            
+            // Clear input
+            document.getElementById('manualTicketInput').value = '';
+        }
+
+        // Refresh tickets and stats
+        function refreshTickets() {
+            loadTickets();
+            loadStats();
+            showNotification('Data refreshed', 'success');
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const messageEl = document.getElementById('notificationMessage');
+            
+            messageEl.innerText = message;
+            
+            if (type === 'success') {
+                icon.innerHTML = '<i class="fas fa-check-circle text-green-500 text-xl"></i>';
+                notification.className = 'fixed top-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 border-l-4 border-green-500 z-50';
+            } else {
+                icon.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 text-xl"></i>';
+                notification.className = 'fixed top-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 border-l-4 border-red-500 z-50';
+            }
+            
+            notification.classList.remove('hidden');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                hideNotification();
+            }, 5000);
+        }
+
+        // Hide notification
+        function hideNotification() {
+            document.getElementById('notification').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

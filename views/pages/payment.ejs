@@ -1,0 +1,108 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Payment</title>
+    <link rel="stylesheet" href="/css/payment.css">
+</head>
+
+<body>
+
+<div class="payment-card">
+    <h2>🚌 Bus Ticket Payment</h2>
+
+    <div class="amount">
+        ₹ <%= totalFare %>
+    </div>
+
+    <button id="payBtn">Pay Now</button>
+
+    <p class="note">Secure & Fast Payment</p>
+</div>
+
+<script>
+document.getElementById("payBtn").onclick = function () {
+
+    fetch("/interface/payment", {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("Payment Successful!");
+        window.location.href = "/interface/ticket/" + data.ticketNumber;
+    })
+    .catch(() => {
+        alert("Payment Failed!");
+    });
+
+};
+</script>
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment</title>
+    <link rel="stylesheet" href="/css/payment.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+<%- include("../includes/flash.ejs") %>
+<div class="container">
+    <div class="card">
+        <h2>🚌 Bus Ticket Payment</h2>
+
+        <div class="amount-box">
+            <p>Total Amount</p>
+            <h1>₹ <%= totalFare %></h1>
+        </div>
+
+        <button id="payBtn">Pay Now</button>
+
+        <p class="secure">🔒 100% Secure Payment</p>
+    </div>
+</div>
+
+<script>
+document.getElementById("payBtn").onclick = function () {
+
+    // ❗ NEW: show fake processing UI
+    const btn = document.getElementById("payBtn");
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+
+    setTimeout(() => {
+
+        fetch("/interface/payment", {
+            method: "POST"
+        })
+        .then(async res => {
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || "Payment failed");
+            }
+
+            return data;
+        })
+        .then(data => {
+
+            alert("Payment Successful!\nTransaction ID: " + data.paymentId);
+
+            window.location.href = "/interface/ticket/" + data.ticketNumber;
+        })
+        .catch(err => {
+            alert(err.message);
+            console.error(err);
+        });
+
+    }, 2000); // ❗ simulate delay
+
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

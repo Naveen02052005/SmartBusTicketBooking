@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login</title>
+        <link rel="stylesheet" href="/css/login.css">
+    </head>
+    <body>
+         <div class="login">
+                <h1>Welcome Back</h1>
+
+                
+                <% if(error) { %>
+                    <div class="login-error-container">
+                        <p class="login-error"><%= error %></p>
+                    </div>
+                    <script>
+                        setTimeout(() => {
+                            const errorEl = document.querySelector('.login-error');
+                            if(errorEl) errorEl.style.display = 'none';
+                        }, 5000);
+                    </script>
+                <% } %>
+
+                <form method="post" action="/login">
+                    <label><b>Username:</b></label>
+                    <input type="text" name="userName" placeholder="UserName/email" required>
+
+                    <label><b>Password:</b></label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="password" placeholder="******" required>
+                        <i class="fa-solid fa-eye" id="togglePassword"></i>
+                    </div>
+
+                    <button type="submit" class="btn-login login-btn">Continue with Login</button>
+                </form>
+
+                <p>Don't have an account? <a class="register"href="/registration">Register here</a></p>
+                
+            </div>
+            <script src="/js/login.js"></script>
+    </body>
+</html>
